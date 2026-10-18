@@ -1,0 +1,1267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7ff">
+  <title>Secure Checkout · Finivex</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172342;
+      --muted: #75809b;
+      --line: #e8ebf4;
+      --paper: #ffffff;
+      --wash: #f4f6fc;
+      --blue: #3158df;
+      --blue-dark: #243fc0;
+      --mint: #c6f5e6;
+      --mint-ink: #08795f;
+      --purple: #7755ec;
+      --coral: #ff866b;
+      --danger: #c64353;
+      --shadow: 0 24px 70px rgba(32, 48, 93, .13);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 7% 10%, rgba(190, 230, 255, .56), transparent 27rem),
+        radial-gradient(ellipse at 95% 90%, rgba(220, 205, 255, .45), transparent 29rem),
+        #f4f6fc;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(310px, .86fr) minmax(440px, 1.14fr);
+      width: min(1180px, calc(100% - 48px));
+      min-height: 760px;
+      margin: 44px auto;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 32px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .brand-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100%;
+      padding: 42px 42px 36px;
+      overflow: hidden;
+      color: #fff;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(69, 208, 217, .3), transparent 15rem),
+        radial-gradient(circle at 105% 80%, rgba(255, 134, 107, .26), transparent 18rem),
+        linear-gradient(145deg, #18275c 4%, #263c91 56%, #4538a7 100%);
+    }
+    .brand-panel::before, .brand-panel::after {
+      position: absolute;
+      z-index: 0;
+      content: "";
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .brand-panel::before { width: 380px; height: 380px; right: -180px; top: 175px; }
+    .brand-panel::after { width: 270px; height: 270px; right: -125px; top: 230px; }
+    .brand-content, .brand-foot { position: relative; z-index: 1; }
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 760;
+      letter-spacing: -.02em;
+    }
+    .mark-icon {
+      display: grid;
+      width: 39px;
+      height: 39px;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 14px;
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 95px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 99px;
+      color: #d8f5ff;
+      background: rgba(255,255,255,.08);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: #75f0c1; box-shadow: 0 0 0 4px rgba(117,240,193,.12); }
+    .brand-panel h1 {
+      max-width: 380px;
+      margin: 22px 0 16px;
+      font-size: clamp(38px, 4vw, 54px);
+      line-height: 1.04;
+      letter-spacing: -.055em;
+    }
+    .brand-copy {
+      max-width: 370px;
+      margin: 0;
+      color: rgba(238,242,255,.77);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+    .trust-list {
+      display: grid;
+      gap: 17px;
+      margin: 37px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .trust-list li { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,.89); font-size: 13px; }
+    .trust-icon {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 10px;
+      color: #b6ffe6;
+      background: rgba(255,255,255,.08);
+    }
+    .brand-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 52px; color: rgba(238,242,255,.62); font-size: 11px; }
+    .brand-foot .secure-note { display: flex; align-items: center; gap: 7px; }
+    .checkout-panel { padding: 32px clamp(28px, 5vw, 64px) 40px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 40px;
+      margin-bottom: 28px;
+    }
+    .topbar-label { color: var(--muted); font-size: 12px; font-weight: 650; }
+    .connection {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      color: #606b87;
+      background: #fff;
+      font-size: 11px;
+      font-weight: 650;
+    }
+    .connection .dot { width: 7px; height: 7px; border-radius: 50%; background: #eab84c; }
+    .connection.online .dot { background: #20bf8a; box-shadow: 0 0 0 3px rgba(32,191,138,.12); }
+    .connection.offline .dot { background: #ed7780; }
+    .view { animation: enter .24s ease both; }
+    @keyframes enter { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    .step-label { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; color: var(--blue); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .step-number { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 8px; color: #fff; background: var(--blue); font-size: 11px; letter-spacing: 0; }
+    h2 { margin: 0; font-size: clamp(28px, 3vw, 36px); line-height: 1.12; letter-spacing: -.045em; }
+    .intro { margin: 10px 0 27px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .amount-card {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 128px;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 19px;
+      padding: 19px;
+      border: 1px solid #e4e9fa;
+      border-radius: 20px;
+      background: linear-gradient(120deg, #f6f8ff, #fbfaff);
+    }
+    .field-label { display: block; margin-bottom: 9px; color: #596584; font-size: 11px; font-weight: 760; letter-spacing: .08em; text-transform: uppercase; }
+    .amount-input {
+      width: 100%;
+      min-width: 0;
+      padding: 2px 0 0;
+      border: 0;
+      outline: 0;
+      color: #1d2d59;
+      background: transparent;
+      font-size: 35px;
+      font-weight: 760;
+      letter-spacing: -.055em;
+    }
+    .amount-input::placeholder { color: #aeb6ca; }
+    .select-wrap { position: relative; }
+    .currency-select, .phone-input, .otp-input {
+      width: 100%;
+      border: 1px solid #e2e6f0;
+      outline: none;
+      color: var(--ink);
+      background-color: #fff;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .currency-select:focus, .phone-input:focus, .otp-input:focus { border-color: #7d91ed; box-shadow: 0 0 0 4px rgba(74,103,220,.11); }
+    .currency-select { height: 46px; padding: 0 12px; border-radius: 12px; font-size: 13px; font-weight: 750; }
+    .currency-note { margin-top: 8px; color: #8b94aa; font-size: 10px; }
+    .form-section { margin-top: 22px; }
+    .phone-input { height: 50px; padding: 0 14px; border-radius: 13px; font-size: 15px; font-weight: 620; letter-spacing: .01em; }
+    .phone-input::placeholder { color: #a1a9ba; font-weight: 450; }
+    .field-help { display: flex; align-items: flex-start; gap: 8px; margin: 9px 0 0; color: #8791a8; font-size: 10.5px; line-height: 1.5; }
+    .network-check {
+      display: none;
+      align-items: flex-start;
+      gap: 9px;
+      margin-top: 11px;
+      padding: 10px 12px;
+      border: 1px solid #dde7ff;
+      border-radius: 12px;
+      color: #455783;
+      background: #f5f8ff;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .network-check.show { display: flex; }
+    .network-check strong { color: #253a76; }
+    .network-check.warning { border-color: #f2dfba; color: #76613b; background: #fffaf0; }
+    .network-check.error { border-color: #f1c9cb; color: #955158; background: #fff7f7; }
+    .methods-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .methods-head .field-label { margin: 0; }
+    .method-caption { color: #99a1b3; font-size: 10px; }
+    .method-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .method-option { position: relative; }
+    .method-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .method-card {
+      display: flex;
+      min-height: 70px;
+      align-items: center;
+      gap: 11px;
+      padding: 12px;
+      border: 1px solid #e8ebf3;
+      border-radius: 14px;
+      background: #fff;
+      transition: border-color .17s, background .17s, transform .17s, box-shadow .17s;
+      cursor: pointer;
+    }
+    .method-card:hover { transform: translateY(-1px); border-color: #bdc8f5; }
+    .method-option input:checked + .method-card { border-color: #7c8feb; background: #f7f8ff; box-shadow: 0 0 0 3px rgba(87,110,225,.09); }
+    .method-option input:focus-visible + .method-card { outline: 3px solid rgba(78,104,220,.27); outline-offset: 2px; }
+    .method-logo { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border-radius: 11px; color: #fff; font-size: 11px; font-weight: 850; letter-spacing: -.04em; }
+    .method-logo.eco { background: linear-gradient(135deg,#28a46b,#0d7955); }
+    .method-logo.one { background: linear-gradient(135deg,#fa9b3f,#e47120); }
+    .method-logo.inn { background: linear-gradient(135deg,#5942cd,#8b63ee); }
+    .method-logo.oma { background: linear-gradient(135deg,#1589b9,#2bb7c7); }
+    .method-text { min-width: 0; }
+    .method-name { display: block; color: #2b3655; font-size: 12px; font-weight: 780; }
+    .method-desc { display: block; margin-top: 4px; color: #98a0b2; font-size: 9.5px; line-height: 1.3; }
+    .method-empty { grid-column: 1/-1; padding: 13px; border: 1px dashed #e0e4ef; border-radius: 13px; color: #78839e; font-size: 12px; line-height: 1.55; }
+    .method-retry { min-height: 34px; margin-top: 10px; padding: 0 11px; }
+    .method-notice { margin-top: 8px; color: #9199ab; font-size: 10px; line-height: 1.5; }
+    .alert {
+      margin-top: 15px;
+      padding: 12px 13px;
+      border: 1px solid #f1ced0;
+      border-radius: 13px;
+      color: #873e49;
+      background: #fff7f7;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+    .alert[hidden] { display: none; }
+    .alert strong { display: block; margin-bottom: 3px; font-size: 12px; }
+    .alert details { margin-top: 6px; }
+    .alert summary { cursor: pointer; font-weight: 700; }
+    .alert pre { max-height: 160px; margin: 8px 0 0; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 10px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .pay-button, .primary-button {
+      display: flex;
+      width: 100%;
+      min-height: 54px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      border: 0;
+      border-radius: 15px;
+      color: #fff;
+      background: linear-gradient(100deg,#375fe4,#654fe8);
+      box-shadow: 0 10px 22px rgba(70,87,210,.22);
+      font-size: 14px;
+      font-weight: 760;
+      transition: transform .18s, box-shadow .18s, opacity .18s;
+    }
+    .pay-button:hover:not(:disabled), .primary-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 13px 28px rgba(70,87,210,.28); }
+    .pay-button:disabled, .primary-button:disabled { cursor: not-allowed; opacity: .54; box-shadow: none; }
+    .button-lock { opacity: .82; }
+    .fine-print { display: flex; justify-content: center; gap: 7px; margin-top: 12px; color: #a0a7b7; font-size: 10px; }
+    .loader { width: 17px; height: 17px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+    .loader.small { width: 13px; height: 13px; border-width: 1.8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .pending-card {
+      margin-top: 25px;
+      padding: 22px;
+      border: 1px solid #e6eafa;
+      border-radius: 20px;
+      background: linear-gradient(135deg,#f7f8ff,#fff);
+    }
+    .pending-card.sent { border-color: #ccefe3; background: linear-gradient(135deg,#f5fffb,#fff); }
+    .pending-top { display: flex; align-items: flex-start; gap: 14px; }
+    .pending-icon, .success-icon, .failed-icon {
+      display: grid;
+      width: 50px;
+      height: 50px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 17px;
+      color: #fff;
+      background: linear-gradient(145deg,#435fe3,#8661ee);
+      box-shadow: 0 8px 18px rgba(80,86,201,.2);
+    }
+    .pending-icon .loader { width: 23px; height: 23px; border-width: 2.5px; }
+    .pending-icon.sent { background: linear-gradient(145deg,#19b88a,#39c8a2); box-shadow: 0 8px 18px rgba(25,184,138,.19); }
+    .pending-title { margin: 2px 0 5px; font-size: 19px; font-weight: 790; letter-spacing: -.035em; }
+    .pending-copy { margin: 0; color: #7c879e; font-size: 12px; line-height: 1.6; }
+    .pending-copy.sent-copy { color: #138264; font-weight: 650; }
+    .status-line { display: flex; align-items: center; gap: 9px; margin-top: 22px; padding-top: 16px; border-top: 1px solid #e8ebf3; color: #596684; font-size: 11px; }
+    .status-line.error { color: #a83d4a; }
+    .status-line.error .status-indicator { background: #d65361 !important; box-shadow: 0 0 0 4px rgba(214,83,97,.13) !important; }
+    .status-indicator { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: #efb844; box-shadow: 0 0 0 4px rgba(239,184,68,.13); }
+    .timer-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; color: #8a94a9; font-size: 10px; }
+    .timer-value { color: #4b5777; font-variant-numeric: tabular-nums; font-weight: 760; }
+    .otp-box { margin-top: 18px; padding-top: 18px; border-top: 1px solid #e8ebf3; }
+    .otp-box[hidden] { display: none; }
+    .otp-title { margin: 0 0 6px; font-size: 14px; font-weight: 760; }
+    .otp-help { margin: 0 0 12px; color: #7c879e; font-size: 11px; line-height: 1.6; }
+    .otp-row { display: grid; grid-template-columns: minmax(0,1fr) 130px; gap: 9px; }
+    .otp-input { height: 48px; padding: 0 13px; border-radius: 12px; font-size: 17px; font-weight: 700; letter-spacing: .22em; }
+    .otp-submit { min-height: 48px; margin: 0; border-radius: 12px; font-size: 12px; }
+    .pending-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 17px; }
+    .secondary-button, .text-button {
+      display: inline-flex;
+      min-height: 40px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 14px;
+      border: 1px solid #e1e5f0;
+      border-radius: 11px;
+      color: #4d5a7a;
+      background: #fff;
+      font-size: 11px;
+      font-weight: 720;
+    }
+    .secondary-button:hover, .text-button:hover { border-color: #b9c4ed; background: #fafbff; }
+    .secondary-button:disabled { cursor: wait; opacity: .6; }
+    .text-button { border-color: transparent; color: #65718f; background: transparent; }
+    .pending-error { margin-top: 13px; }
+    .receipt-card {
+      margin-top: 25px;
+      padding: 22px;
+      border: 1px solid #e8ebf3;
+      border-radius: 20px;
+      background: linear-gradient(135deg,#fbfcff,#f8f9ff);
+    }
+    .receipt-head { display: flex; align-items: center; gap: 14px; padding-bottom: 18px; border-bottom: 1px dashed #dfe4f0; }
+    .success-icon { color: #fff; background: linear-gradient(145deg,#19b88a,#39c8a2); box-shadow: 0 8px 18px rgba(25,184,138,.19); }
+    .receipt-head h3 { margin: 0 0 4px; font-size: 18px; letter-spacing: -.035em; }
+    .receipt-head p { margin: 0; color: #8190a3; font-size: 11px; }
+    .receipt-number { margin-left: auto; text-align: right; }
+    .receipt-number span { display: block; color: #9aa2b2; font-size: 9px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    .receipt-number strong { display: block; margin-top: 5px; color: #465575; font-size: 10px; overflow-wrap: anywhere; }
+    .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; padding: 18px 0 4px; }
+    .receipt-item span { display: block; color: #99a1b1; font-size: 9px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .receipt-item strong { display: block; margin-top: 5px; color: #35415f; font-size: 12px; font-weight: 730; overflow-wrap: anywhere; }
+    .receipt-note { margin: 15px 0 0; padding: 10px 11px; border-radius: 11px; color: #6c7993; background: #f0f3fb; font-size: 10px; line-height: 1.55; }
+    .receipt-actions { display: flex; align-items: center; gap: 9px; margin-top: 19px; }
+    .receipt-actions .primary-button { width: auto; flex: 1; min-height: 46px; margin: 0; border-radius: 12px; font-size: 12px; }
+    .failed-icon { color: #fff; background: linear-gradient(145deg,#e9757d,#cf4c65); box-shadow: 0 8px 18px rgba(207,76,101,.17); }
+    .footer-line { margin-top: 27px; padding-top: 15px; border-top: 1px solid #edf0f6; color: #a0a7b7; font-size: 10px; line-height: 1.5; text-align: center; }
+    .footer-line a { color: #6577c6; text-decoration: none; }
+    [hidden] { display: none !important; }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: minmax(280px,.78fr) minmax(410px,1.22fr); width: min(100% - 30px, 820px); margin: 24px auto; }
+      .brand-panel { padding: 34px 28px; }
+      .checkout-panel { padding: 28px 34px 34px; }
+      .eyebrow { margin-top: 70px; }
+    }
+    @media (max-width: 680px) {
+      body { background: #f5f7fc; }
+      .shell { display: flex; flex-direction: column; width: 100%; min-height: 100vh; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+      .brand-panel { min-height: 226px; padding: 22px 24px 25px; }
+      .brand-mark { font-size: 14px; }
+      .mark-icon { width: 34px; height: 34px; border-radius: 12px; }
+      .brand-panel h1 { max-width: 380px; margin: 15px 0 8px; font-size: 31px; }
+      .eyebrow { margin-top: 22px; padding: 6px 10px; font-size: 9px; }
+      .brand-copy { max-width: 470px; font-size: 12px; line-height: 1.5; }
+      .trust-list, .brand-foot { display: none; }
+      .brand-panel::before { top: -220px; right: -130px; }
+      .brand-panel::after { top: -160px; right: -100px; }
+      .checkout-panel { flex: 1; padding: 21px 22px 28px; }
+      .topbar { margin-bottom: 22px; }
+      .intro { margin-bottom: 22px; }
+    }
+    @media (max-width: 420px) {
+      .checkout-panel { padding-right: 17px; padding-left: 17px; }
+      .amount-card { grid-template-columns: minmax(0,1fr) 104px; gap: 10px; padding: 15px; }
+      .amount-input { font-size: 31px; }
+      .method-grid { gap: 7px; }
+      .method-card { min-height: 68px; gap: 8px; padding: 9px; }
+      .method-logo { width: 31px; height: 31px; }
+      .method-name { font-size: 11px; }
+      .method-desc { font-size: 9px; }
+      .pending-card, .receipt-card { padding: 17px; }
+      .otp-row { grid-template-columns: minmax(0,1fr) 112px; }
+      .receipt-grid { gap: 14px 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+    @media print {
+      body { background: #fff; }
+      .shell { display: block; width: auto; min-height: 0; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+      .brand-panel, .topbar, .step-label, .receipt-actions, .footer-line { display: none !important; }
+      .checkout-panel { padding: 0; }
+      .receipt-card { margin: 0; border: 1px solid #dfe3ed; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="brand-panel" aria-label="Payment security information">
+      <div class="brand-content">
+        <div class="brand-mark">
+          <span class="mark-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M13.1 2.8 5.5 13h5.1l-.6 8.2L18.5 11h-5.2l-.2-8.2Z" fill="#A8F6DB" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </span>
+          <span>Secure checkout</span>
+        </div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Payments made simple</div>
+        <h1>Pay with the wallet you trust.</h1>
+        <p class="brand-copy">Choose a payment method, confirm your number, and approve the prompt on your phone. Your payment status is checked securely before confirmation.</p>
+        <ul class="trust-list">
+          <li><span class="trust-icon" aria-hidden="true">✓</span><span>Wallet options enabled for this merchant</span></li>
+          <li><span class="trust-icon" aria-hidden="true">↻</span><span>Live payment status updates</span></li>
+          <li><span class="trust-icon" aria-hidden="true">▣</span><span>Receipt after payment is confirmed</span></li>
+        </ul>
+      </div>
+      <div class="brand-foot">
+        <span>Powered by Finivex</span>
+        <span class="secure-note"><span aria-hidden="true">●</span> Protected connection</span>
+      </div>
+    </aside>
+
+    <main class="checkout-panel">
+      <div class="topbar">
+        <span class="topbar-label">CHECKOUT</span>
+        <span class="connection" id="connection"><span class="dot"></span><span id="connectionText">Connecting to gateway</span></span>
+      </div>
+
+      <section class="view" id="checkoutView" aria-labelledby="checkoutTitle">
+        <div class="step-label"><span class="step-number">1</span> Payment details</div>
+        <h2 id="checkoutTitle">Complete your payment</h2>
+        <p class="intro">Enter the amount and mobile-money details below. Required fields are marked with an asterisk.</p>
+
+        <form id="paymentForm" novalidate>
+          <div class="amount-card">
+            <div>
+              <label class="field-label" for="amount">Amount to pay <span aria-hidden="true">*</span></label>
+              <input class="amount-input" id="amount" name="amount" type="number" min="0.01" step="any" inputmode="decimal" placeholder="0.00" required>
+            </div>
+            <div class="select-wrap">
+              <label class="field-label" for="currency">Currency *</label>
+              <select class="currency-select" id="currency" name="currency" required>
+                <option value="USD">USD</option>
+                <option value="ZWG">ZWG</option>
+              </select>
+              <div class="currency-note">Zimbabwe dollars or US dollars</div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="field-label" for="phone">Mobile number <span aria-hidden="true">*</span></label>
+            <input class="phone-input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 077 123 4567" required aria-describedby="phoneHelp networkInfo">
+            <p class="field-help" id="phoneHelp"><span aria-hidden="true">ⓘ</span><span>Zimbabwe mobile number. You can enter 077… or +263 77…; we’ll format it for checkout.</span></p>
+            <div class="network-check" id="networkInfo" role="status" aria-live="polite"></div>
+          </div>
+
+          <div class="form-section">
+            <div class="methods-head">
+              <span class="field-label">Choose a mobile-money wallet <span aria-hidden="true">*</span></span>
+              <span class="method-caption" id="methodCaption">Loading merchant options…</span>
+            </div>
+            <div class="method-grid" id="methods" role="radiogroup" aria-label="Mobile-money payment method">
+              <div class="method-empty"><span class="loader small" aria-hidden="true"></span> Loading payment methods…</div>
+            </div>
+            <div class="method-notice" id="methodNotice">Wallet availability is confirmed by the gateway for this merchant account.</div>
+          </div>
+
+          <div class="alert" id="formAlert" role="alert" hidden></div>
+          <button class="pay-button" id="payButton" type="submit" disabled>
+            <span class="button-label">Continue to payment</span>
+            <svg class="button-lock" width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="4.4" y="8.2" width="11.2" height="8.4" rx="1.6" stroke="currentColor" stroke-width="1.5"/><path d="M6.7 8.2V5.9a3.3 3.3 0 0 1 6.6 0v2.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <div class="fine-print"><span aria-hidden="true">✦</span><span>Payment details are sent over a secure connection</span></div>
+        </form>
+      </section>
+
+      <section class="view" id="pendingView" aria-labelledby="pendingTitle" hidden>
+        <div class="step-label"><span class="step-number">2</span> Payment in progress</div>
+        <h2 id="pendingTitle">Approve on your phone</h2>
+        <p class="intro" id="pendingIntro">Keep this page open while we check your payment.</p>
+        <div class="pending-card">
+          <div class="pending-top">
+            <div class="pending-icon" id="pendingIcon" aria-hidden="true"><span class="loader"></span></div>
+            <div>
+              <h3 class="pending-title" id="pendingHeading">Waiting for your approval</h3>
+              <p class="pending-copy" id="pendingCopy">Check your phone for a payment prompt and approve it to continue.</p>
+            </div>
+          </div>
+          <div class="status-line"><span class="status-indicator" id="statusIndicator"></span><span id="statusText">Connecting to the payment network…</span></div>
+          <div class="timer-row"><span id="timerCaption">Time waiting</span><span class="timer-value" id="timerValue">00:00</span></div>
+
+          <div class="otp-box" id="otpBox" hidden>
+            <h3 class="otp-title">Enter the SMS verification code</h3>
+            <p class="otp-help">Finivex sent a one-time code to the number above. Enter it before the five-minute session expires.</p>
+            <form id="otpForm">
+              <div class="otp-row">
+                <input class="otp-input" id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="••••••" aria-label="SMS verification code" required>
+                <button class="primary-button otp-submit" id="otpButton" type="submit">Verify code</button>
+              </div>
+            </form>
+          </div>
+          <div class="alert pending-error" id="pendingAlert" role="alert" hidden></div>
+          <div class="pending-actions">
+            <button class="secondary-button" id="checkStatusButton" type="button"><span aria-hidden="true">↻</span> Check status now</button>
+            <button class="text-button" id="newPaymentButton" type="button" hidden>Start another payment</button>
+          </div>
+        </div>
+        <div class="footer-line">We check payment status with Finivex before confirming. If you already approved, use <strong>Check status now</strong>.</div>
+      </section>
+
+      <section class="view" id="thankYouView" aria-labelledby="thankYouTitle" hidden>
+        <div class="step-label"><span class="step-number">✓</span> Payment confirmed</div>
+        <div class="receipt-card">
+          <div class="receipt-head">
+            <div class="success-icon" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19.5 6.7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h3 id="thankYouTitle">Thank you!</h3>
+              <p id="thankYouSubtitle">Your payment has been confirmed.</p>
+            </div>
+            <div class="receipt-number"><span>Receipt reference</span><strong id="receiptRef">—</strong></div>
+          </div>
+          <div class="receipt-grid">
+            <div class="receipt-item"><span>Amount paid</span><strong id="receiptAmount">—</strong></div>
+            <div class="receipt-item"><span>Payment method</span><strong id="receiptMethod">—</strong></div>
+            <div class="receipt-item"><span>Gateway reference</span><strong id="providerRef">—</strong></div>
+            <div class="receipt-item"><span>Processed</span><strong id="receiptDate">—</strong></div>
+          </div>
+          <p class="receipt-note">This merchant-side confirmation is based on a completed Finivex status check. Keep the receipt reference for your records.</p>
+          <div class="receipt-actions">
+            <button class="primary-button" id="anotherPaymentButton" type="button">Make another payment</button>
+            <button class="secondary-button" id="printButton" type="button" aria-label="Print receipt">Print</button>
+          </div>
+        </div>
+        <div class="footer-line">Your payment is complete. You can safely close this page.</div>
+      </section>
+
+      <section class="view" id="failedView" aria-labelledby="failedTitle" hidden>
+        <div class="step-label"><span class="step-number">!</span> Payment needs attention</div>
+        <div class="pending-card">
+          <div class="pending-top">
+            <div class="failed-icon" aria-hidden="true">!</div>
+            <div>
+              <h2 id="failedTitle" style="font-size:24px">We couldn’t confirm this payment</h2>
+              <p class="pending-copy" id="failedCopy" style="margin-top:8px">Check the gateway response below. You can check status again or return to checkout.</p>
+            </div>
+          </div>
+          <div class="alert" id="failedAlert" role="alert" hidden></div>
+          <div class="pending-actions">
+            <button class="secondary-button" id="failedCheckButton" type="button">Check status again</button>
+            <button class="text-button" id="failedNewButton" type="button">Return to checkout</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    "use strict";
+    const API_BASE = "https://server-zimbabwe.onrender.com";
+    const METHOD_ORDER = ["ECOCASH", "ONEMONEY", "INNBUCKS", "OMARI"];
+    const METHOD_INFO = {
+      ECOCASH: { name: "EcoCash", initials: "EC", cls: "eco", detail: "Econet wallet · phone approval prompt" },
+      ONEMONEY: { name: "OneMoney", initials: "1M", cls: "one", detail: "NetOne wallet · phone approval prompt" },
+      INNBUCKS: { name: "InnBucks", initials: "IB", cls: "inn", detail: "Mobile wallet · phone approval prompt" },
+      OMARI: { name: "Omari", initials: "OM", cls: "oma", detail: "SMS verification code · OTP required" }
+    };
+    const views = {
+      checkout: document.getElementById("checkoutView"),
+      pending: document.getElementById("pendingView"),
+      thankyou: document.getElementById("thankYouView"),
+      failed: document.getElementById("failedView")
+    };
+    const els = {
+      connection: document.getElementById("connection"),
+      connectionText: document.getElementById("connectionText"),
+      methods: document.getElementById("methods"),
+      methodCaption: document.getElementById("methodCaption"),
+      methodNotice: document.getElementById("methodNotice"),
+      amount: document.getElementById("amount"),
+      currency: document.getElementById("currency"),
+      phone: document.getElementById("phone"),
+      networkInfo: document.getElementById("networkInfo"),
+      payButton: document.getElementById("payButton"),
+      formAlert: document.getElementById("formAlert"),
+      pendingAlert: document.getElementById("pendingAlert"),
+      failedAlert: document.getElementById("failedAlert"),
+      otpBox: document.getElementById("otpBox"),
+      otp: document.getElementById("otp"),
+      otpButton: document.getElementById("otpButton"),
+      checkStatusButton: document.getElementById("checkStatusButton"),
+      newPaymentButton: document.getElementById("newPaymentButton"),
+      statusText: document.getElementById("statusText"),
+      statusIndicator: document.getElementById("statusIndicator"),
+      statusLine: document.querySelector(".status-line"),
+      pendingIcon: document.getElementById("pendingIcon"),
+      pendingCard: document.querySelector("#pendingView .pending-card"),
+      pendingHeading: document.getElementById("pendingHeading"),
+      pendingCopy: document.getElementById("pendingCopy"),
+      pendingIntro: document.getElementById("pendingIntro"),
+      timerCaption: document.getElementById("timerCaption"),
+      timerValue: document.getElementById("timerValue")
+    };
+    let availableMethods = [];
+    let methodListVerified = false;
+    let selectedMethodTouched = false;
+    let currentReference = null;
+    let currentMethod = null;
+    let currentAmount = null;
+    let currentCurrency = null;
+    let currentPhone = null;
+    let paymentStartedAt = 0;
+    let otpExpiresAt = 0;
+    let pollInterval = null;
+    let timerInterval = null;
+    let polling = false;
+    let pollStoppedAtLimit = false;
+
+    function setView(name) {
+      Object.entries(views).forEach(([key, node]) => { node.hidden = key !== name; });
+    }
+
+    function setConnection(state, label) {
+      els.connection.classList.toggle("online", state === "online");
+      els.connection.classList.toggle("offline", state === "offline");
+      els.connectionText.textContent = label;
+    }
+
+    function showAlert(node, message, detail) {
+      node.replaceChildren();
+      const strong = document.createElement("strong");
+      strong.textContent = message;
+      node.appendChild(strong);
+      if (detail) {
+        const details = document.createElement("details");
+        const summary = document.createElement("summary");
+        summary.textContent = "Gateway response details";
+        const pre = document.createElement("pre");
+        pre.textContent = typeof detail === "string" ? detail : JSON.stringify(detail, null, 2);
+        details.append(summary, pre);
+        node.appendChild(details);
+      }
+      node.hidden = false;
+    }
+
+    function clearAlert(node) {
+      node.hidden = true;
+      node.replaceChildren();
+    }
+
+    function messageFrom(body, fallback) {
+      return body?.finivex?.errorMessage ||
+        body?.finivex?.message ||
+        body?.message ||
+        body?.error ||
+        fallback;
+    }
+
+    async function apiRequest(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          ...(options.body ? { "Content-Type": "application/json" } : {}),
+          ...(options.headers || {})
+        }
+      });
+      const text = await response.text();
+      let body;
+      try { body = text ? JSON.parse(text) : {}; }
+      catch { body = { rawResponse: text }; }
+      return { response, body };
+    }
+
+    function normalizeZimbabwePhone(value) {
+      let digits = String(value || "").trim().replace(/\D/g, "");
+      if (digits.startsWith("00")) digits = digits.slice(2);
+      if (digits.startsWith("0") && digits.length === 10) digits = `263${digits.slice(1)}`;
+      if (digits.length === 9) return { valid: false, number: "", reason: "Add the Zimbabwe trunk zero (for example 077…) or country code +263." };
+      if (!/^263\d{9}$/.test(digits)) return { valid: false, number: "", reason: "Enter a Zimbabwe mobile number such as 077 123 4567 or +263 77 123 4567." };
+      return { valid: true, number: digits, national: digits.slice(3) };
+    }
+
+    function detectCarrier(normalized) {
+      if (!normalized?.valid) return null;
+      const ndc = normalized.national.slice(0, 2);
+      if (ndc === "71" || ndc === "72") return { name: "NetOne", method: "ONEMONEY" };
+      if (ndc === "73") return { name: "Telecel", method: null };
+      if (ndc === "77" || ndc === "78") return { name: "Econet", method: "ECOCASH" };
+      return { name: "Zimbabwe mobile network", method: null };
+    }
+
+    function selectedMethod() {
+      return document.querySelector('input[name="paymentMethod"]:checked')?.value || "";
+    }
+
+    function renderMethods() {
+      els.methods.replaceChildren();
+      const order = METHOD_ORDER.filter(method => availableMethods.includes(method));
+      if (!order.length) {
+        const empty = document.createElement("div");
+        empty.className = "method-empty";
+        const message = document.createElement("div");
+        message.textContent = methodListVerified
+          ? "No mobile-money method is enabled for this merchant account. Contact the merchant before continuing."
+          : "Payment methods are unavailable until the backend is ready. Please retry in a moment.";
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "secondary-button method-retry";
+        retry.textContent = "Retry connection";
+        retry.addEventListener("click", loadMethods);
+        empty.append(message, retry);
+        els.methods.appendChild(empty);
+        els.methodCaption.textContent = methodListVerified ? "None enabled" : "Unavailable";
+        els.payButton.disabled = true;
+        return;
+      }
+
+      els.methodCaption.textContent = methodListVerified ? "Active for this merchant" : "Options not yet verified";
+      order.forEach((method, index) => {
+        const info = METHOD_INFO[method];
+        const label = document.createElement("label");
+        label.className = "method-option";
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "paymentMethod";
+        input.value = method;
+        input.required = true;
+        input.checked = index === 0;
+        input.addEventListener("change", () => {
+          selectedMethodTouched = true;
+          updateNetworkInfo();
+          validateForm();
+        });
+        const card = document.createElement("span");
+        card.className = "method-card";
+        const logo = document.createElement("span");
+        logo.className = `method-logo ${info.cls}`;
+        logo.textContent = info.initials;
+        const text = document.createElement("span");
+        text.className = "method-text";
+        const name = document.createElement("span");
+        name.className = "method-name";
+        name.textContent = info.name;
+        const detail = document.createElement("span");
+        detail.className = "method-desc";
+        detail.textContent = info.detail;
+        text.append(name, detail);
+        card.append(logo, text);
+        label.append(input, card);
+        els.methods.appendChild(label);
+      });
+      els.payButton.disabled = false;
+      updateNetworkInfo();
+    }
+
+    async function loadMethods() {
+      setConnection("", "Connecting to gateway");
+      try {
+        const { response, body } = await apiRequest("/api/payment-methods");
+        const values = body?.finivex?.data;
+        if (!response.ok || body?.success !== true || !Array.isArray(values)) {
+          availableMethods = [];
+          methodListVerified = false;
+          setConnection("offline", body?.error === "FINIVEX_CREDENTIALS_NOT_CONFIGURED" ? "Setup needed" : "Gateway unavailable");
+          els.methodNotice.textContent = body?.error === "FINIVEX_CREDENTIALS_NOT_CONFIGURED"
+            ? "Merchant setup is not finished. Finivex API credentials must be configured on the backend."
+            : "The backend could not confirm active wallets. Retry the connection before checkout.";
+          showAlert(
+            els.formAlert,
+            messageFrom(body, "Could not load active payment methods."),
+            body?.finivex || body
+          );
+          renderMethods();
+          validateForm();
+          return;
+        }
+        clearAlert(els.formAlert);
+        availableMethods = METHOD_ORDER.filter(method => values.includes(method));
+        methodListVerified = true;
+        setConnection("online", "Gateway connected");
+        els.methodNotice.textContent = availableMethods.length
+          ? "Only payment methods enabled for this merchant are shown."
+          : "No mobile-money methods are currently enabled for this merchant account.";
+      } catch (error) {
+        availableMethods = [];
+        methodListVerified = false;
+        setConnection("offline", "Gateway not confirmed");
+        els.methodNotice.textContent = "Could not reach the payment backend. Retry the connection before checkout.";
+        showAlert(
+          els.formAlert,
+          error.message || "Could not reach the payment backend.",
+          { message: error.message || "Network request failed before a Finivex response was received." }
+        );
+      }
+      renderMethods();
+      validateForm();
+    }
+
+    function updateNetworkInfo() {
+      const normalized = normalizeZimbabwePhone(els.phone.value);
+      const carrier = detectCarrier(normalized);
+      let method = selectedMethod();
+      els.networkInfo.className = "network-check";
+      if (!els.phone.value.trim()) {
+        els.networkInfo.textContent = "";
+        return;
+      }
+      els.networkInfo.classList.add("show");
+      if (!normalized.valid) {
+        els.networkInfo.classList.add("error");
+        els.networkInfo.textContent = normalized.reason;
+        return;
+      }
+      if (!carrier) return;
+
+      let message = `Prefix suggests ${carrier.name}. Prefixes identify the allocated number range, not the SIM’s current wallet.`;
+      if (carrier.method && availableMethods.includes(carrier.method)) {
+        if (!selectedMethodTouched || !method) {
+          const radio = document.querySelector(`input[name="paymentMethod"][value="${carrier.method}"]`);
+          if (radio) {
+            radio.checked = true;
+            method = carrier.method;
+          }
+        }
+        message += ` ${METHOD_INFO[carrier.method].name} is suggested; confirm it matches the wallet registered to this number.`;
+      } else if (carrier.method && methodListVerified) {
+        message += ` ${METHOD_INFO[carrier.method].name} is not enabled for this merchant, so choose another active wallet only if the customer can use that wallet on this number.`;
+        els.networkInfo.classList.add("warning");
+      } else if (carrier.name === "Telecel") {
+        message += " Finivex does not list Telecel’s Telecash; choose an enabled wallet only if it can use this number.";
+        els.networkInfo.classList.add("warning");
+      } else {
+        message += " Select the wallet actually registered to this number.";
+      }
+      els.networkInfo.textContent = message;
+    }
+
+    function validateForm() {
+      const amount = Number(els.amount.value);
+      const phone = normalizeZimbabwePhone(els.phone.value);
+      const method = selectedMethod();
+      const valid = Number.isFinite(amount) && amount > 0 && phone.valid && !!method && availableMethods.includes(method);
+      els.payButton.disabled = !valid || els.payButton.dataset.busy === "true";
+      return { valid, amount, phone, method };
+    }
+
+    function formatMoney(amount, currency) {
+      try {
+        return new Intl.NumberFormat("en", { style: "currency", currency, minimumFractionDigits: 2 }).format(amount);
+      } catch {
+        return `${currency} ${Number(amount).toFixed(2)}`;
+      }
+    }
+
+    function formatElapsed(milliseconds) {
+      const seconds = Math.max(0, Math.floor(milliseconds / 1000));
+      return `${String(Math.floor(seconds / 60)).padStart(2,"0")}:${String(seconds % 60).padStart(2,"0")}`;
+    }
+
+    function displayPhone(phone) {
+      if (!/^263\d{9}$/.test(phone || "")) return phone || "your phone";
+      const national = phone.slice(3);
+      return `+263 ${national.slice(0,2)} ${national.slice(2,5)} ${national.slice(5)}`;
+    }
+
+    function setPaymentStatus(message, state = "pending") {
+      els.statusText.textContent = message;
+      els.statusLine.classList.toggle("error", state === "error");
+      if (state === "error") {
+        els.statusIndicator.style.background = "#d65361";
+        els.statusIndicator.style.boxShadow = "0 0 0 4px rgba(214,83,97,.13)";
+      } else if (state === "sent") {
+        els.statusIndicator.style.background = "#20bf8a";
+        els.statusIndicator.style.boxShadow = "0 0 0 4px rgba(32,191,138,.13)";
+      } else {
+        els.statusIndicator.style.background = "#efb844";
+        els.statusIndicator.style.boxShadow = "0 0 0 4px rgba(239,184,68,.13)";
+      }
+    }
+
+    function markPromptSent() {
+      const number = displayPhone(currentPhone);
+      const isOtp = currentMethod === "OMARI";
+      els.pendingCard.classList.add("sent");
+      els.pendingIcon.classList.add("sent");
+      els.pendingIcon.innerHTML = '<svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12.5 4.3 4.2L19.5 6.7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      els.pendingHeading.textContent = isOtp ? "Verification SMS sent" : "Payment prompt sent";
+      els.pendingCopy.classList.add("sent-copy");
+      els.pendingCopy.textContent = isOtp
+        ? `An Omari verification code was sent to ${number}. Enter it below to continue.`
+        : `A ${METHOD_INFO[currentMethod]?.name || "mobile-money"} prompt was sent to ${number}. Approve it on your phone to complete payment.`;
+      setPaymentStatus(
+        isOtp ? `SMS code sent to ${number} · waiting for verification.` : `Prompt sent to ${number} · waiting for approval.`,
+        "sent"
+      );
+    }
+
+    function clearClocks() {
+      if (pollInterval) clearInterval(pollInterval);
+      if (timerInterval) clearInterval(timerInterval);
+      pollInterval = null;
+      timerInterval = null;
+      polling = false;
+    }
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (currentMethod === "OMARI" && otpExpiresAt) {
+          const remaining = Math.max(0, otpExpiresAt - Date.now());
+          els.timerCaption.textContent = "OTP session expires in";
+          els.timerValue.textContent = formatElapsed(remaining);
+          if (remaining <= 0) {
+            document.getElementById("otpButton").disabled = true;
+            els.pendingCopy.textContent = "The Omari code session has expired. Start a new payment to request a fresh code.";
+            els.newPaymentButton.hidden = false;
+          }
+        } else if (paymentStartedAt) {
+          els.timerCaption.textContent = "Time waiting";
+          els.timerValue.textContent = formatElapsed(Date.now() - paymentStartedAt);
+        }
+      }, 500);
+    }
+
+    function beginPaymentPage(reference, method, amount, currency, phone) {
+      currentReference = reference;
+      currentMethod = method;
+      currentAmount = amount;
+      currentCurrency = currency;
+      currentPhone = phone;
+      paymentStartedAt = Date.now();
+      pollStoppedAtLimit = false;
+      clearAlert(els.pendingAlert);
+      els.otpBox.hidden = method !== "OMARI";
+      els.pendingCard.classList.remove("sent");
+      els.pendingIcon.classList.remove("sent");
+      els.pendingIcon.innerHTML = '<span class="loader"></span>';
+      els.pendingCopy.classList.remove("sent-copy");
+      els.newPaymentButton.hidden = true;
+      els.checkStatusButton.disabled = false;
+      els.pendingHeading.textContent = method === "OMARI" ? "Check your SMS for a code" : "Waiting for your approval";
+      els.pendingCopy.textContent = method === "OMARI"
+        ? "Enter the one-time code sent to your phone to complete payment."
+        : "Check your phone for a payment prompt and approve it to continue.";
+      els.pendingIntro.textContent = method === "OMARI"
+        ? "Your Omari code is time-sensitive. Complete verification before the session expires."
+        : "Keep this page open while we check your payment.";
+      setPaymentStatus("Starting your payment…");
+      setView("pending");
+      history.pushState({ page: "payment", reference }, "", `#payment/${encodeURIComponent(reference)}`);
+      startTimer();
+    }
+
+    function stopPolling() {
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = null;
+    }
+
+    function startPolling() {
+      stopPolling();
+      pollStoppedAtLimit = false;
+      pollPayment();
+      pollInterval = setInterval(() => {
+        if (!currentReference || pollStoppedAtLimit) return;
+        if (Date.now() - paymentStartedAt >= 5 * 60 * 1000) {
+          pollStoppedAtLimit = true;
+          stopPolling();
+          els.pendingHeading.textContent = "Still waiting for a final update";
+          els.pendingCopy.textContent = "No final status has arrived yet. Check again before considering another payment.";
+          els.statusText.textContent = "The payment is still being checked.";
+          return;
+        }
+        pollPayment();
+      }, 5000);
+    }
+
+    async function pollPayment() {
+      if (!currentReference || polling) return;
+      polling = true;
+      els.checkStatusButton.disabled = true;
+      try {
+        const { response, body } = await apiRequest(`/api/payments/${encodeURIComponent(currentReference)}`);
+        if (!response.ok || body?.success !== true) {
+          setPaymentStatus(messageFrom(body, "Could not retrieve payment status."), "error");
+          if (body?.finivex) showAlert(els.pendingAlert, messageFrom(body, "Finivex could not confirm payment status."), body.finivex);
+          return;
+        }
+        const data = body?.finivex?.data || {};
+        const status = String(data.status || "").toUpperCase();
+        if (status === "COMPLETED") {
+          stopPolling();
+          const receipt = body.receipt || await loadReceipt(currentReference);
+          if (receipt) {
+            showThankYou(receipt, currentReference);
+          } else {
+            els.statusText.textContent = "Payment completed. Loading your receipt…";
+          }
+        } else if (["FAILED", "CANCELLED", "EXPIRED"].includes(status)) {
+          stopPolling();
+          showFailed(messageFrom(body, `Payment ${status.toLowerCase()}.`), body.finivex);
+        } else {
+          setPaymentStatus(status
+            ? `Finivex status: ${status.toLowerCase()}. Waiting for confirmation…`
+            : "Waiting for Finivex to return a payment status…");
+          if (status === "PROCESSING" || status === "PENDING") clearAlert(els.pendingAlert);
+        }
+      } catch (error) {
+        setPaymentStatus("Could not reach the backend. Your payment may still be processing.", "error");
+        showAlert(els.pendingAlert, error.message || "Network connection failed.", null);
+      } finally {
+        polling = false;
+        els.checkStatusButton.disabled = false;
+      }
+    }
+
+    async function loadReceipt(reference) {
+      try {
+        const { response, body } = await apiRequest(`/api/receipts/${encodeURIComponent(reference)}`);
+        if (response.ok && body?.success && body.receipt) return body.receipt;
+        if (body?.finivex) showAlert(els.pendingAlert, messageFrom(body, "The payment is confirmed, but the receipt could not be loaded yet."), body.finivex);
+      } catch (error) {
+        showAlert(els.pendingAlert, error.message || "The receipt could not be loaded yet.", null);
+      }
+      return null;
+    }
+
+    function showThankYou(receipt, reference) {
+      clearClocks();
+      const ref = receipt.transactionReference || reference;
+      document.getElementById("receiptRef").textContent = receipt.receiptReference || ref || "—";
+      document.getElementById("receiptAmount").textContent =
+        receipt.amount != null && receipt.currency ? formatMoney(Number(receipt.amount), receipt.currency) :
+          currentAmount != null ? formatMoney(currentAmount, currentCurrency) : "—";
+      document.getElementById("receiptMethod").textContent = METHOD_INFO[receipt.paymentMethod]?.name || receipt.paymentMethod || currentMethod || "—";
+      document.getElementById("providerRef").textContent = receipt.providerReference || "Not supplied";
+      const date = receipt.processedAt ? new Date(receipt.processedAt) : null;
+      document.getElementById("receiptDate").textContent =
+        date && !Number.isNaN(date.getTime()) ? date.toLocaleString() : "Confirmed";
+      history.pushState({ page: "thankyou", reference: ref }, "", `#thank-you/${encodeURIComponent(ref)}`);
+      setView("thankyou");
+    }
+
+    function showFailed(message, detail) {
+      clearClocks();
+      document.getElementById("failedCopy").textContent = message || "The payment did not complete.";
+      if (detail) showAlert(els.failedAlert, message || "Finivex returned a payment error.", detail);
+      else clearAlert(els.failedAlert);
+      setView("failed");
+      history.pushState({ page: "failed", reference: currentReference }, "", `#payment-failed/${encodeURIComponent(currentReference || "")}`);
+    }
+
+    async function submitPayment(event) {
+      event.preventDefault();
+      clearAlert(els.formAlert);
+      const form = validateForm();
+      if (!form.valid) {
+        showAlert(els.formAlert, !form.phone.valid ? form.phone.reason : "Enter a positive amount and select an available wallet.");
+        return;
+      }
+      currentReference = `pay_${crypto.randomUUID().replace(/-/g, "")}`;
+      currentMethod = form.method;
+      currentAmount = form.amount;
+      currentCurrency = els.currency.value;
+      currentPhone = form.phone.number;
+      beginPaymentPage(currentReference, currentMethod, currentAmount, currentCurrency, currentPhone);
+      els.payButton.dataset.busy = "true";
+      els.payButton.disabled = true;
+      els.payButton.innerHTML = '<span class="loader small" aria-hidden="true"></span><span>Contacting gateway…</span>';
+
+      try {
+        const { response, body } = await apiRequest("/api/payments/push", {
+          method: "POST",
+          body: JSON.stringify({
+            reference: currentReference,
+            paymentMethod: currentMethod,
+            customerPhone: form.phone.number,
+            amount: form.amount,
+            currency: currentCurrency
+          })
+        });
+        if (!response.ok || body?.success !== true) {
+          showFailed(messageFrom(body, "The gateway could not start this payment. Check the response before trying again."), body?.finivex || body);
+          return;
+        }
+
+        const data = body?.finivex?.data || {};
+        setConnection("online", "Gateway connected");
+        markPromptSent();
+        if (body.otpRequired) {
+          otpExpiresAt = Date.now() + 5 * 60 * 1000;
+          els.otpBox.hidden = false;
+          els.otp.focus();
+        } else if (data.status === "COMPLETED" && body.receipt) {
+          showThankYou(body.receipt, currentReference);
+          return;
+        }
+        startPolling();
+      } catch (error) {
+        showFailed(
+          "We lost the connection while starting the payment. It may still be processing—check status before starting another payment.",
+          { message: error.message, reference: currentReference }
+        );
+      } finally {
+        els.payButton.dataset.busy = "false";
+        els.payButton.innerHTML = '<span class="button-label">Continue to payment</span><svg class="button-lock" width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="4.4" y="8.2" width="11.2" height="8.4" rx="1.6" stroke="currentColor" stroke-width="1.5"/><path d="M6.7 8.2V5.9a3.3 3.3 0 0 1 6.6 0v2.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+        validateForm();
+      }
+    }
+
+    async function submitOtp(event) {
+      event.preventDefault();
+      clearAlert(els.pendingAlert);
+      const code = els.otp.value.trim();
+      if (!/^\d{1,12}$/.test(code)) {
+        showAlert(els.pendingAlert, "Enter the digits from the SMS code.");
+        return;
+      }
+      if (Date.now() >= otpExpiresAt) {
+        showAlert(els.pendingAlert, "This OTP session has expired. Start a new payment to request a new code.");
+        els.newPaymentButton.hidden = false;
+        return;
+      }
+      els.otpButton.disabled = true;
+      els.otpButton.innerHTML = '<span class="loader small" aria-hidden="true"></span>';
+      try {
+        const { response, body } = await apiRequest(`/api/payments/${encodeURIComponent(currentReference)}/otp`, {
+          method: "POST",
+          body: JSON.stringify({ otp: code })
+        });
+        const data = body?.finivex?.data || {};
+        if (!response.ok || body?.success !== true || data.success === false || data.status === "FAILED") {
+          showFailed(messageFrom(body, data.message || "The verification code was not accepted."), body?.finivex || body);
+          return;
+        }
+        setPaymentStatus(`Finivex status: ${String(data.status || "processing").toLowerCase()}.`);
+        if (body.receipt) {
+          showThankYou(body.receipt, currentReference);
+        } else {
+          startPolling();
+        }
+      } catch (error) {
+        showAlert(els.pendingAlert, error.message || "Could not submit the verification code.");
+      } finally {
+        els.otpButton.disabled = false;
+        els.otpButton.textContent = "Verify code";
+      }
+    }
+
+    function startAnotherPayment() {
+      clearClocks();
+      currentReference = null;
+      currentMethod = null;
+      currentAmount = null;
+      currentCurrency = null;
+      currentPhone = null;
+      paymentStartedAt = 0;
+      otpExpiresAt = 0;
+      selectedMethodTouched = false;
+      clearAlert(els.formAlert);
+      clearAlert(els.pendingAlert);
+      clearAlert(els.failedAlert);
+      document.getElementById("paymentForm").reset();
+      if (availableMethods.length) {
+        const first = document.querySelector('input[name="paymentMethod"]');
+        if (first) first.checked = true;
+      }
+      history.pushState({ page: "checkout" }, "", window.location.pathname + window.location.search);
+      setView("checkout");
+      updateNetworkInfo();
+      validateForm();
+    }
+
+    async function handleRoute() {
+      const hash = window.location.hash;
+      const thankYouMatch = hash.match(/^#thank-you\/(.+)$/);
+      const paymentMatch = hash.match(/^#payment\/(.+)$/);
+      if (thankYouMatch) {
+        const ref = decodeURIComponent(thankYouMatch[1]);
+        currentReference = ref;
+        setView("pending");
+        els.pendingHeading.textContent = "Loading payment confirmation";
+        els.pendingCopy.textContent = "Verifying the latest payment status with Finivex.";
+        try {
+          const receipt = await loadReceipt(ref);
+          if (receipt) showThankYou(receipt, ref);
+          else showFailed("This transaction does not have a completed receipt yet.", null);
+        } catch {
+          showFailed("Could not verify this transaction. Check the status before retrying.", null);
+        }
+        return;
+      }
+      if (paymentMatch) {
+        currentReference = decodeURIComponent(paymentMatch[1]);
+        paymentStartedAt = paymentStartedAt || Date.now();
+        setView("pending");
+        startTimer();
+        startPolling();
+        return;
+      }
+      if (!hash || hash === "#") {
+        clearClocks();
+        setView("checkout");
+      }
+    }
+
+    document.getElementById("paymentForm").addEventListener("submit", submitPayment);
+    document.getElementById("otpForm").addEventListener("submit", submitOtp);
+    els.phone.addEventListener("input", () => { updateNetworkInfo(); validateForm(); });
+    els.amount.addEventListener("input", validateForm);
+    els.currency.addEventListener("change", validateForm);
+    els.checkStatusButton.addEventListener("click", pollPayment);
+    document.getElementById("failedCheckButton").addEventListener("click", async () => {
+      if (!currentReference) return;
+      setView("pending");
+      els.pendingHeading.textContent = "Checking payment status";
+      els.statusText.textContent = "Requesting the latest status from Finivex…";
+      paymentStartedAt = paymentStartedAt || Date.now();
+      startTimer();
+      await pollPayment();
+    });
+    els.newPaymentButton.addEventListener("click", startAnotherPayment);
+    document.getElementById("failedNewButton").addEventListener("click", startAnotherPayment);
+    document.getElementById("anotherPaymentButton").addEventListener("click", startAnotherPayment);
+    document.getElementById("printButton").addEventListener("click", () => window.print());
+    window.addEventListener("popstate", handleRoute);
+
+    loadMethods();
+    if (window.location.hash) handleRoute();
+  </script>
+</body>
+</html>
